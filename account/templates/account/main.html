@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    صفحه اصلس
+{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+{% block content %}
+<body class="container">
+    <div class="mt-5">
+        <a href="login.html" class="text-decoration-none text-secondary">ورود</a><span class="mx-2">/</span>
+        <a href="register.html" class="text-decoration-none text-secondary">ثبت نام</a>
+        <i class="bi bi-person"></i>
+    </div>
+    <div class="row text-center form mx-auto mt-5" dir="rtl">
+        <form action="Post" class="form-group">
+            <h1 class="mt-4">شماره سریال</h1>
+            <input type="text" name="" class="rounded-pill mt-4 input form-control w-75 mx-auto">
+            <h3 class="mt-4">تعداد روز</h3>
+            <select name="time" class="form-select mt-4 w-25 mx-auto">
+                <option value="یک ماه"> یک ماه</option>
+                <option value="دو ماه"> دو ماه</option>
+                <option value="سه ماه"> سه ماه</option>
+                <option value="شش ماه"> شش ماه</option>
+                <option value="یک سال"> یک سال</option>
+            </select>
+            <input type="button" value="تولید رمز" class="btn btn-success rounded-3 mt-4 mb-4">
+        </form>
+        <i class="bi bi-info-square mb-2 text-end info" data-bs-toggle="tooltip" data-bs-placement="left"
+            title="loremipsum555555555555555555555555555555555"></i>
+    </div>
+</body>
+{% endblock %}
+</html>

@@ -15,25 +15,27 @@
         </a>
     </div>
     <div class="row text-center form mx-auto mt-5" dir="rtl">
-        <form action="Post" class="form-group">
+        <form method="post" class="form-group">
+            {% csrf_token %}
             <ul>
                 <li class="list-unstyled ">
                     <i class="bi bi-person h5 mx-3"></i>
-                    <input type="text" name="" placeholder="نام و نام خانوادگی"
-                        class="rounded-pill mt-4 input form-control w-50 mx-auto d-inline">
+                    {{ form.full_name }}
                 </li>
                 <li class="list-unstyled">
                     <i class="bi bi-telephone h5 mx-3"></i>
-                    <input type="text" name="" placeholder="شماره تلفن"
-                        class="rounded-pill mt-4 input form-control w-50 mx-auto d-inline"><br>
+                    {{ form.phone }}
                 </li>
                 <li class="list-unstyled">
                     <i class="bi bi-key h5 mx-3"></i>
-                    <input type="password" name="" placeholder="رمز عبور"
-                        class="rounded-pill mt-4 input form-control w-50 mx-auto d-inline"><br>
+                    {{ form.password1 }}
+                </li>
+                <li class="list-unstyled">
+                    <i class="bi bi-key h5 mx-3"></i>
+                    {{ form.password2 }}
                 </li>
             </ul>
-            <input type="button" value="ثبت نام" class="btn btn-success rounded-3 mt-4 mb-4">
+            <input type="submit" value="ثبت نام" class="btn btn-success rounded-3 mt-4 mb-4">
         </form>
     </div>
 </body>

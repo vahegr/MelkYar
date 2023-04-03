@@ -8,12 +8,17 @@
 {% block content %}
 <body class="container">
     <div class="mt-5">
-        <a href="login.html" class="text-decoration-none text-secondary">ورود</a><span class="mx-2">/</span>
-        <a href="register.html" class="text-decoration-none text-secondary">ثبت نام</a>
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'account:log out' %}" class="text-decoration-none text-secondary">خروج</a>
+        {% else %}
+            <a href="{% url 'account:log in' %}" class="text-decoration-none text-secondary">ورود</a><span class="mx-2">/</span>
+            <a href="{% url 'account:register' %}" class="text-decoration-none text-secondary">ثبت نام</a>
+        {% endif %}
         <i class="bi bi-person"></i>
     </div>
     <div class="row text-center form mx-auto mt-5" dir="rtl">
-        <form action="Post" class="form-group">
+        <form method="post" class="form-group">
+            {% csrf_token %}
             <h1 class="mt-4">شماره سریال</h1>
             <input type="text" name="" class="rounded-pill mt-4 input form-control w-75 mx-auto">
             <h3 class="mt-4">تعداد روز</h3>

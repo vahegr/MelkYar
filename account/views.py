@@ -4,12 +4,12 @@ import random
 import uuid
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, get_object_or_404, reverse, HttpResponse
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from melkyar import settings
 from django.views import View
 from django.views.generic import DetailView, CreateView
-from .forms import LogInForm, UserCreationForm, SubscriptionForm, ChekOtpForm
+from .forms import LogInForm, UserCreationForm, SubscriptionForm, ChekOtpForm, PasswordResetForm
 from .models import User, Plan, ConfirmationCode, SerialNumber, Opt
 
 
@@ -56,7 +56,7 @@ class UserRegister(CreateView):
         return redirect(reverse_lazy('account:phone_confirm', kwargs={'id': opt.id}))
 
 
-def chek_opt(request, id):
+def chek_otp(request, id):
     if request.method == 'POST':
         form = ChekOtpForm(request.POST)
         if form.is_valid():
@@ -68,6 +68,8 @@ def chek_opt(request, id):
                 user.save()
                 login(request, user)
                 return redirect('account:main')
+            else:
+                form.add_error('code', 'کد وارد شده اشتباه است !')
         return render(request, 'account/confirm_phone.html', context={'form': form})
 
 
@@ -101,6 +103,56 @@ class UserLogOut(View):
         logout(request)
         return redirect('account:log in')
 
+
+def forgot_password(request):
+    context = {"errors": []}
+    if request.method == 'POST':
+        phone = request.POST.get('phone')
+        if User.objects.filter(phone=phone).exists():
+            api = ghasedakpack.Ghasedak(settings.GHASEDAK_API_KEY)
+            num = random.randint(10000, 99999)
+            Opt.objects.create(phone=phone, code=num)
+            api.verification({'receptor': phone, 'type': '1', 'template': 'randcode', 'param1': num})
+            print(num)
+            opt = Opt.objects.get(phone=phone, code=num)
+            return redirect(reverse('account:enter_code', kwargs={'id': opt.id}))
+        else:
+            context["errors"].append('کاربری با شماره وارد شده وجود ندارد !')
+    return render(request, 'account/forgot_password.html', context)
+
+
+def otp_for_reset_password(request, id):
+    form = ChekOtpForm()
+    if request.method == 'POST':
+        form = ChekOtpForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            if Opt.objects.filter(code=cd['code'], id=id).exists():
+                otp = Opt.objects.get(code=cd['code'], id=id)
+                return HttpResponseRedirect(reverse('account:reset_password', kwargs={'id': otp.id}))
+            else:
+                form.add_error('code', 'کد وارد شده اشتباه است !')
+        return HttpResponse('not found')
+    return render(request, 'account/confirm_phone.html', context={'form': form})
+
+
+def reset_password(request, id):
+    otp_filter = Opt.objects.filter(id=id)
+    otp = Opt.objects.get(id=id)
+    user = User.objects.get(phone=otp.phone)
+    form = PasswordResetForm()
+    if otp_filter.exists():
+        if request.method == 'POST':
+            form = PasswordResetForm(request.POST)
+            if form.is_valid():
+                password1 = form.cleaned_data.get("new_password1")
+                user.set_password(password1)
+                user.save()
+                otp.delete()
+                return HttpResponseRedirect(reverse('account:log in'))
+            else:
+                return form.errors
+        return render(request, 'account/reset_password.html', context={'form': form})
 
 # def user_panel(request, id, username):
 #     user = User.objects.get(id=id, username=username)

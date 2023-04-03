@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-    ورود
+    تایید کد ارسال شده
 {% endblock %}
 <!DOCTYPE html>
 <html lang="en">
@@ -21,6 +21,9 @@
                 <li class="list-unstyled">
                     <i class="bi bi-telephone h5 mx-3"></i>
                     {{ form }}
+                    {{ form.errors }}
+                    {{ form.code.errors }}
+                    {{ form.non_field_errors }}
                 </li>
             </ul>
             <input type="submit" value="تایید" class="btn btn-success rounded-3 mt-4 mb-4">

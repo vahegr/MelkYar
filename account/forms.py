@@ -3,6 +3,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 from django.core import validators
 from .models import User, Plan, SerialNumber
+from django.contrib.auth import password_validation
 
 
 class UserCreationForm(forms.ModelForm):
@@ -102,3 +103,28 @@ class ChekOtpForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'rounded-pill mt-4 input form-control w-75 mx-auto'}),
         required=True,
     )
+
+
+class PasswordResetForm(forms.Form):
+
+    new_password1 = forms.CharField(max_length=50, widget=forms.PasswordInput(
+        attrs={
+            "placeholder": "رمز عبور",
+            'class': 'rounded-pill mt-4 input form-control w-75 mx-auto'
+        }
+    ))
+
+    new_password2 = forms.CharField(max_length=50, widget=forms.PasswordInput(
+        attrs={
+            "placeholder": "تکرار رمز عبور",
+            'class': 'rounded-pill mt-4 input form-control w-75 mx-auto'
+        }
+    ))
+
+    def clean_password2(self):
+        # Check that the two password entries match
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise ValidationError("اختلافی در کلمه عبور وجود دارد")
+        return password2

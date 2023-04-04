@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-    صفحه اصلس
+    صفحه اصلی
 {% endblock %}
 <!DOCTYPE html>
 <html lang="en">
@@ -20,17 +20,23 @@
         <form method="post" class="form-group">
             {% csrf_token %}
             <h1 class="mt-4">شماره سریال</h1>
-            <input type="text" name="" class="rounded-pill mt-4 input form-control w-75 mx-auto">
+            {{ form.serial_number }}
+            {{ form.serial_number.errors }}
             <h3 class="mt-4">تعداد روز</h3>
-            <select name="time" class="form-select mt-4 w-25 mx-auto">
-                <option value="یک ماه"> یک ماه</option>
-                <option value="دو ماه"> دو ماه</option>
-                <option value="سه ماه"> سه ماه</option>
-                <option value="شش ماه"> شش ماه</option>
-                <option value="یک سال"> یک سال</option>
-            </select>
-            <input type="button" value="تولید رمز" class="btn btn-success rounded-3 mt-4 mb-4">
+            {{ form.plan }}
+            <input type="submit" value="تولید رمز" class="btn btn-success rounded-3 mt-4 mb-4">
+            {{ form.errors }}
+            {{ form.non_field_errors }}
         </form>
+        <a href="{% url 'account:create_serial_number' %}"><input type="button" value="ساخت شماره سریال" class="btn btn-success rounded-3 mt-4 mb-4"></a>
+        <h3 class="mt-4">شماره سریال های ثبت شده من</h3>
+        {% for number in serial_numbers %}
+            <a href="{% url 'account:get_code' number.id %}">
+                <h4 class="text-secondary">{{ number.number }} </h4>
+                <h4 class="text-secondary">{{ number.days_charge }} روز مانده </h4>
+            </a>
+        <hr>
+        {% endfor %}
         <i class="bi bi-info-square mb-2 text-end info" data-bs-toggle="tooltip" data-bs-placement="left"
             title="loremipsum555555555555555555555555555555555"></i>
     </div>

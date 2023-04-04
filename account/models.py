@@ -75,6 +75,9 @@ class Plan(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     days = models.IntegerField(default=0)
 
+    def __str__(self):
+        return self.title
+
 
 class SerialNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='کاربر', related_name='serial_numbers')

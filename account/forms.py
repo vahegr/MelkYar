@@ -76,7 +76,7 @@ class LogInForm(forms.Form):
                 "placeholder": "رمز عبور"}))
 
 
-class SubscriptionForm(forms.ModelForm):
+class SubscriptionForm(forms.Form):
     serial_number = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'rounded-pill mt-4 input form-control w-75 mx-auto'}),
         required=True,
@@ -88,14 +88,14 @@ class SubscriptionForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-select mt-4 w-25 mx-auto'})
     )
 
-    def clean_serial_number(self, request):
-        serial_number = self.cleaned_data.get('serial_number')
-        serial_number_query = SerialNumber.objects.get(number=serial_number)
-        serial_number_query_filter = SerialNumber.objects.filter(number=serial_number)
-        if serial_number_query.user.id != request.user.id:
-            raise ValidationError('این شماره سریال مال شما نیست!', code='wrong_serial_number')
-        if not serial_number_query_filter.exists():
-            raise ValidationError('این شماره سریال وجود ندارد!', code='serial_number_doesnt_exist')
+    # def clean_serial_number(self, request):
+    #     serial_number = self.cleaned_data.get('serial_number')
+    #     serial_number_query = SerialNumber.objects.get(number=serial_number)
+    #     serial_number_query_filter = SerialNumber.objects.filter(number=serial_number)
+    #     if serial_number_query.user.id != request.user.id:
+    #         raise ValidationError('این شماره سریال مال شما نیست!', code='wrong_serial_number')
+    #     if not serial_number_query_filter.exists():
+    #         raise ValidationError('این شماره سریال وجود ندارد!', code='serial_number_doesnt_exist')
 
 
 class ChekOtpForm(forms.Form):

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    ورود
+{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+{% block content %}
+
+<body class="container">
+    <div class="mt-5">
+        <a href="main.html" class="text-decoration-none text-secondary">
+            <i class="bi bi-caret-left-fill"></i>
+            <p class="d-inline">صفحه اصلی</p>
+        </a>
+    </div>
+    <div class="row text-center form mx-auto mt-5" dir="rtl">
+        <form method="post" class="form-group">
+            {% csrf_token %}
+            <ul>
+                <li class="list-unstyled">
+                    <i class="bi bi-telephone h5 mx-3"></i>
+                    {{ form.phone}}
+                </li>
+                <li class="list-unstyled">
+                    <i class="bi bi-key h5 mx-3"></i>
+                    {{ form.password}}
+                </li>
+            </ul>
+            <input type="submit" value="ورود" class="btn btn-success rounded-3 mt-4 mb-4">
+            <br><a href="{% url 'account:forgot_password' %}">فراموشی رمز عبور</a>
+        </form>
+    </div>
+</body>
+{% endblock %}
+</html>

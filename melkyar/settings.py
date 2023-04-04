@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     # packages
     'requests',
+    'ghasedakpack',
 ]
 
 MIDDLEWARE = [

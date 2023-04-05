@@ -137,9 +137,13 @@ def reset_password(request, id):
                 return form.errors
         return render(request, 'account/reset_password.html', context={'form': form})
 
-# def user_panel(request, id, username):
-#     user = User.objects.get(id=id, username=username)
-#     return render(request, "account/user-panel.html", context={'object': user})
+
+def user_panel(request):
+    if request.user.is_authenticated:
+        user_serial_numbers = SerialNumber.objects.filter(user_id=request.user.id)
+        return render(request, "account/userpanel.html", context={'serial_numbers': user_serial_numbers})
+    else:
+        return redirect('account:log in')
 
 
 # def subscription(request, id, serial_number):
@@ -175,10 +179,7 @@ def create_serial_number(request):
     if request.user.is_authenticated:
         create_number = ''.join(random.choices('0123456789', k=15))
         SerialNumber.objects.create(user_id=request.user.id, number=create_number)
-        if SerialNumber.objects.filter(user_id=request.user.id, number=create_number).exists():
-            create_number = ''.join(random.choices('0123456789', k=15))
-            SerialNumber.objects.create(user_id=request.user.id, number=create_number)
-        return redirect('account:main')
+        return redirect('account:user_panel')
     else:
         redirect('account:log in')
 
@@ -206,22 +207,30 @@ def main(request):
 
 
 def create_confirmation_code(request, plan_id, serial_number_id):
-    serial_number = SerialNumber.objects.get(id=serial_number_id)
-    plan = Plan.objects.get(id=plan_id)
-    serial_number.days_charge += plan.days
-    serial_number.save()
-    create_code = uuid.uuid4()
-    if serial_number.code:
-        serial_number.code.code = create_code
+    if request.user.is_authenticated:
+        serial_number = SerialNumber.objects.get(id=serial_number_id)
+        plan = Plan.objects.get(id=plan_id)
+        serial_number.days_charge += plan.days
         serial_number.save()
+        create_code = uuid.uuid4()
+        exist_code = ConfirmationCode.objects.filter(serial_number=serial_number)
+        if exist_code.exists():
+            confirmation_code = ConfirmationCode.objects.get(serial_number=serial_number)
+            confirmation_code.code = create_code
+            confirmation_code.save()
+        else:
+            ConfirmationCode.objects.create(code=create_code, serial_number_id=serial_number.id)
+        return redirect(reverse('account:get_code', kwargs={'id': serial_number.id}))
     else:
-        ConfirmationCode.objects.create(code=create_code, serial_number_id=serial_number.id)
-    return redirect(reverse('account:get_code', kwargs={'id': serial_number.id}))
+        return redirect('account:log in')
 
 
 def get_code(request, id):
-    serial_number = SerialNumber.objects.get(id=id)
-    if serial_number.user.id == request.user.id:
-        return render(request, 'account/get_code.html', context={'serial_number': serial_number})
+    if request.user.is_authenticated:
+        serial_number = SerialNumber.objects.get(id=id)
+        if serial_number.user.id == request.user.id:
+            return render(request, 'account/get_code.html', context={'serial_number': serial_number})
+        else:
+            return redirect('account:main')
     else:
-        return redirect('account:main')
+        return redirect('account:log in')

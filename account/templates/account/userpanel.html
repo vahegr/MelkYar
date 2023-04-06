@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    پنل کاربری
+{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+{% block content %}
+<body class="container">
+    <div class="mt-5">
+        <a href="{% url 'account:main' %}" class="text-decoration-none text-secondary">
+            <i class="bi bi-caret-left-fill"></i>
+            <p class="d-inline">صفحه اصلی</p>
+        </a>
+    </div>
+    <a href="{% url 'account:create_serial_number' %}"><input type="button" class="btn btn-success mt-5" value="تولید شماره سریال" data-toggle="modal" data-target="#createserialnumber"></a>
+    <table class="table table-striped table-hover mt-1">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col" class="text-center">شماره سریال</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for number in serial_numbers %}
+                <tr data-toggle="modal" data-target="">
+                    <th scope="row"></th>
+                    <td class="text-center"><a style="text-decoration: none; color: black" href="{% url 'account:get_code' number.id%}">{{ number.number }}</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{#    <div class="modal" tabindex="-1" role="dialog" id="createserialnumber" dir="rtl">#}
+{#        <div class="modal-dialog" role="document">#}
+{#            <div class="modal-content">#}
+{#                <div class="modal-header">#}
+{#                    <h5 class="modal-title">شماره سریال جدید</h5>#}
+{#                </div>#}
+{#                <div class="modal-body">#}
+{#                    <p>..............</p>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+
+{#    <div class="modal" tabindex="-1" role="dialog" id="showcode" dir="rtl">#}
+{#        <div class="modal-dialog" role="document">#}
+{#            <div class="modal-content">#}
+{#                <div class="modal-header">#}
+{#                    <h5 class="modal-title">کد شما</h5>#}
+{#                </div>#}
+{#                <div class="modal-body">#}
+{#                    {% if number.code.code %}#}
+{#                    <p>{{ number.code.code }}</p>#}
+{#                    {% else %}#}
+{#                    <p>کدی ثبت نشده است</p>#}
+{#                    {% endif %}#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+
+{% endblock %}
+</body>
+
+</html>

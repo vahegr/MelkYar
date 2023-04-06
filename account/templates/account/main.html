@@ -1,35 +1,39 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}
-    صفحه اصلس
+    صفحه اصلی
 {% endblock %}
 <!DOCTYPE html>
 <html lang="en">
 {% block content %}
 <body class="container">
     <div class="mt-5">
+        <div class="d-flex justify-content-start">
         {% if request.user.is_authenticated %}
             <a href="{% url 'account:log out' %}" class="text-decoration-none text-secondary">خروج</a>
         {% else %}
             <a href="{% url 'account:log in' %}" class="text-decoration-none text-secondary">ورود</a><span class="mx-2">/</span>
             <a href="{% url 'account:register' %}" class="text-decoration-none text-secondary">ثبت نام</a>
         {% endif %}
-        <i class="bi bi-person"></i>
+            <i class="bi bi-person mx-2"></i>
+        </div>
+        <div class="d-flex justify-content-end">
+            <a href="{% url 'account:user_panel' %}" class="text-decoration-none text-secondary d-flex justify-content-end">پنل
+            کاربری</a>
+            <i class="bi bi-person-circle mx-2"></i>
+        </div>
     </div>
     <div class="row text-center form mx-auto mt-5" dir="rtl">
         <form method="post" class="form-group">
             {% csrf_token %}
             <h1 class="mt-4">شماره سریال</h1>
-            <input type="text" name="" class="rounded-pill mt-4 input form-control w-75 mx-auto">
+            {{ form.serial_number }}
+            {{ form.serial_number.errors }}
             <h3 class="mt-4">تعداد روز</h3>
-            <select name="time" class="form-select mt-4 w-25 mx-auto">
-                <option value="یک ماه"> یک ماه</option>
-                <option value="دو ماه"> دو ماه</option>
-                <option value="سه ماه"> سه ماه</option>
-                <option value="شش ماه"> شش ماه</option>
-                <option value="یک سال"> یک سال</option>
-            </select>
-            <input type="button" value="تولید رمز" class="btn btn-success rounded-3 mt-4 mb-4">
+            {{ form.plan }}
+            <input type="submit" value="تولید رمز" class="btn btn-success rounded-3 mt-4 mb-4">
+            {{ form.errors }}
+            {{ form.non_field_errors }}
         </form>
         <i class="bi bi-info-square mb-2 text-end info" data-bs-toggle="tooltip" data-bs-placement="left"
             title="loremipsum555555555555555555555555555555555"></i>

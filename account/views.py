@@ -13,23 +13,6 @@ from .forms import LogInForm, UserCreationForm, SubscriptionForm, ChekOtpForm, P
 from .models import User, Plan, ConfirmationCode, SerialNumber, Opt
 
 
-# def create_serial_number(request):
-#     create_number = ''.join(random.choices('0123456789', k=15))
-#     SerialNumber.objects.create(user_id=request.user.id, number=create_number)
-#     if SerialNumber.objects.filter(user_id=request.user.id, number=create_number).exists():
-#         create_number = ''.join(random.choices('0123456789', k=15))
-#         SerialNumber.objects.create(user_id=request.user.id, number=create_number)
-#     return redirect('panel')
-
-
-# def create_confirmation_code(request, number):
-#     serial_number = SerialNumber.objects.get(serial_number=number)
-#     create_code = uuid.uuid4()
-#     ConfirmationCode.objects.create(code=create_code, serial_number=number)
-#     serial_number_code = serial_number.code
-#     return render(request, '', context={'serial_number_code': serial_number_code})
-
-
 class UserRegister(CreateView):
     form_class = UserCreationForm
     template_name = "account/register.html"
@@ -154,9 +137,13 @@ def reset_password(request, id):
                 return form.errors
         return render(request, 'account/reset_password.html', context={'form': form})
 
-# def user_panel(request, id, username):
-#     user = User.objects.get(id=id, username=username)
-#     return render(request, "account/user-panel.html", context={'object': user})
+
+def user_panel(request):
+    if request.user.is_authenticated:
+        user_serial_numbers = SerialNumber.objects.filter(user_id=request.user.id)
+        return render(request, "account/userpanel.html", context={'serial_numbers': user_serial_numbers})
+    else:
+        return redirect('account:log in')
 
 
 # def subscription(request, id, serial_number):
@@ -188,14 +175,62 @@ def reset_password(request, id):
 #     return render(request, 'subscription.html', {'plans': plans})
 
 
+def create_serial_number(request):
+    if request.user.is_authenticated:
+        create_number = ''.join(random.choices('0123456789', k=15))
+        SerialNumber.objects.create(user_id=request.user.id, number=create_number)
+        return redirect('account:user_panel')
+    else:
+        redirect('account:log in')
+
+
 def main(request):
-    # if request.method == 'POST':
-    #     form = SubscriptionForm(request.POST)
-    #     if form.is_valid():
-    #         cd = form.cleaned_data
-    #         serial_number = SerialNumber.objects.get(number=cd['serial_number'], user_id=request.user.id)
-    #         plan = Plan.objects.get(title=cd['plan'])
-    #         return redirect()
-    #     else:
-    #         form.add_error('serial_number', 'اطلاعات وارد شده اشتباه است')
-    return render(request, 'account/main.html', context={})
+    form = SubscriptionForm()
+    user_serial_numbers = SerialNumber.objects.filter(user_id=request.user.id)
+    if request.method == 'POST':
+        form = SubscriptionForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            plan = Plan.objects.get(title=cd['plan'])
+            if SerialNumber.objects.filter(number=cd['serial_number']).exists():
+                serial_number = SerialNumber.objects.get(number=cd['serial_number'])
+                if serial_number.user.id != request.user.id:
+                    form.add_error('serial_number', 'این شماره سریال مال شما نیست !')
+                else:
+                    return redirect(reverse('account:create_confirmation_code',
+                                            kwargs={'plan_id': plan.id, 'serial_number_id': serial_number.id}))
+            else:
+                form.add_error('serial_number', 'این شماره سریال وجود ندارد !')
+        else:
+            form.add_error('serial_number', 'اطلاعات وارد شده اشتباه است')
+    return render(request, 'account/main.html', context={'serial_numbers': user_serial_numbers, 'form': form})
+
+
+def create_confirmation_code(request, plan_id, serial_number_id):
+    if request.user.is_authenticated:
+        serial_number = SerialNumber.objects.get(id=serial_number_id)
+        plan = Plan.objects.get(id=plan_id)
+        serial_number.days_charge += plan.days
+        serial_number.save()
+        create_code = uuid.uuid4()
+        exist_code = ConfirmationCode.objects.filter(serial_number=serial_number)
+        if exist_code.exists():
+            confirmation_code = ConfirmationCode.objects.get(serial_number=serial_number)
+            confirmation_code.code = create_code
+            confirmation_code.save()
+        else:
+            ConfirmationCode.objects.create(code=create_code, serial_number_id=serial_number.id)
+        return redirect(reverse('account:get_code', kwargs={'id': serial_number.id}))
+    else:
+        return redirect('account:log in')
+
+
+def get_code(request, id):
+    if request.user.is_authenticated:
+        serial_number = SerialNumber.objects.get(id=id)
+        if serial_number.user.id == request.user.id:
+            return render(request, 'account/get_code.html', context={'serial_number': serial_number})
+        else:
+            return redirect('account:main')
+    else:
+        return redirect('account:log in')

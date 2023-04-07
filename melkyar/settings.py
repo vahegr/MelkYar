@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # packages
     'requests',
     'ghasedakpack',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

@@ -98,12 +98,17 @@ class ConfirmationCode(models.Model):
     code = models.CharField(max_length=600, verbose_name='کد')
     expiry = models.BooleanField(default=False, verbose_name='انقضا')
     activation_date = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ فعال سازی')
+    date_updated = models.DateTimeField(auto_now=True)
 
     def is_active(self):
         now = timezone.now()
-        days_valid = timezone.timedelta(days=self.serial_number.days_charge)
-        end_date = self.activation_date + days_valid
-        return self.expiry == False and now <= end_date
+        tomorrow = now.day + 1
+        if self.serial_number.days_charge != 0:
+            days_valid = timezone.timedelta(days=self.serial_number.days_charge)
+            if now == tomorrow:
+                end_date = self.date_updated + days_valid
+                days_valid -= 1
+                return self.expiry == False and now <= end_date
 
     def __str__(self):
         return f'{str(self.serial_number)} - {str(self.code)}'

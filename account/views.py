@@ -175,13 +175,13 @@ def user_panel(request):
 #     return render(request, 'subscription.html', {'plans': plans})
 
 
-def create_serial_number(request):
-    if request.user.is_authenticated:
-        create_number = ''.join(random.choices('0123456789', k=15))
-        SerialNumber.objects.create(user_id=request.user.id, number=create_number)
-        return redirect('account:user_panel')
-    else:
-        redirect('account:log in')
+# def create_serial_number(request):
+#     if request.user.is_authenticated:
+#         create_number = ''.join(random.choices('0123456789', k=15))
+#         SerialNumber.objects.create(user_id=request.user.id, number=create_number)
+#         return redirect('account:user_panel')
+#     else:
+#         redirect('account:log in')
 
 
 def main(request):

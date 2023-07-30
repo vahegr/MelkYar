@@ -83,7 +83,14 @@ class SerialNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='کاربر', related_name='serial_numbers')
     number = models.CharField(max_length=15, verbose_name='شماره', unique=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, verbose_name='زمان تولید')
+    payed = models.BooleanField(default=False, verbose_name="وضعیت پرداخت")
     days_charge = models.IntegerField(default=0, verbose_name='روز های شارژ شده')
+
+    def status(self):
+        if self.days_charge == 0:
+            self.payed = False
+        else:
+            self.payed = True
 
     def __str__(self):
         return f'{int(self.days_charge)} - {str(self.number)}'
